@@ -79,7 +79,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 	// APi d'authentification générant un JWT
 	function postLogin (Request $request, Response $response, $args) {   
 		// Récupération du contenu de la requête (login + password)
-		$requestData = json_decode($request->getBody()->getContents(), true);
+		parse_str($request->getBody()->getContents(), $requestData);
+
 		$login = $requestData['login'];
 		$password = $requestData['password'];
 	
