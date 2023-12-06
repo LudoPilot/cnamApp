@@ -27,8 +27,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 	// API Nécessitant un Jwt valide
 	function getCatalogue (Request $request, Response $response, $args) {
-	    $flux = '[{"titre":"linux","ref":"001","prix":"20"},{"titre":"java","ref":"002","prix":"21"},{"titre":"windows","ref":"003","prix":"22"},{"titre":"angular","ref":"004","prix":"23"},{"titre":"unix","ref":"005","prix":"25"},{"titre":"javascript","ref":"006","prix":"19"},{"titre":"html","ref":"007","prix":"15"},{"titre":"css","ref":"008","prix":"10"}]';
-	    
+		$data = file_get_contents(__DIR__ . '/../assets/mock/product-list.json');
+
 	    $response->getBody()->write($flux);
 	    
 	    return addHeaders ($response);
@@ -54,27 +54,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 	    
 	    return addHeaders ($response);
 	}
-
-	// APi d'authentification générant un JWT
-	// function postLogin (Request $request, Response $response, $args) {   
-	//     // Récupération du contenu de la requête (login + password)
-	// 	$data = json_decode($request->getBody(), true);
-	// 	$login = $request['login']; // previously $data
-	// 	$password = $request['password']; // previously $data
-
-
-    // if ($login === 'utilisateur' && $password === 'motdepasse') {
-    //     $flux = '{"nom":"martin","prenom":"jean"}';
-    //     $response = createJwT($response);
-    //     $response->getBody()->write($flux);
-    // } else {
-    //     $response = $response->withStatus(401);
-    //     $errorData = ['error' => 'Informations invalides'];
-    //     $response->getBody()->write(json_encode($errorData));
-    // }
-	    
-	//     return addHeaders ($response);
-	// }
 
 	// APi d'authentification générant un JWT
 	function postLogin (Request $request, Response $response, $args) {   
