@@ -56,23 +56,43 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 	}
 
 	// APi d'authentification générant un JWT
-	function postLogin (Request $request, Response $response, $args) {   
-	    // Récupération du contenu de la requête (login + password)
-		$data = json_decode($request->getBody(), true);
-		$login = $data['login'];
-		$password = $data['password'];
+	// function postLogin (Request $request, Response $response, $args) {   
+	//     // Récupération du contenu de la requête (login + password)
+	// 	$data = json_decode($request->getBody(), true);
+	// 	$login = $request['login']; // previously $data
+	// 	$password = $request['password']; // previously $data
 
 
-    if ($login === 'utilisateur' && $password === 'motdepasse') {
-        $flux = '{"nom":"martin","prenom":"jean"}';
-        $response = createJwT($response);
-        $response->getBody()->write($flux);
-    } else {
-        $response = $response->withStatus(401);
-        $errorData = ['error' => 'Informations invalides'];
-        $response->getBody()->write(json_encode($errorData));
-    }
+    // if ($login === 'utilisateur' && $password === 'motdepasse') {
+    //     $flux = '{"nom":"martin","prenom":"jean"}';
+    //     $response = createJwT($response);
+    //     $response->getBody()->write($flux);
+    // } else {
+    //     $response = $response->withStatus(401);
+    //     $errorData = ['error' => 'Informations invalides'];
+    //     $response->getBody()->write(json_encode($errorData));
+    // }
 	    
-	    return addHeaders ($response);
-	}
+	//     return addHeaders ($response);
+	// }
 
+	// APi d'authentification générant un JWT
+	function postLogin (Request $request, Response $response, $args) {   
+		// Récupération du contenu de la requête (login + password)
+		$requestData = json_decode($request->getBody()->getContents(), true);
+		$login = $requestData['login'];
+		$password = $requestData['password'];
+	
+		// Vérification des identifiants de connexion
+		if ($login === 'emma' && $password === 'toto') {
+			$flux = '{"nom":"martin","prenom":"emma"}';
+			$response = createJwT($response);
+			$response->getBody()->write($flux);
+		} else {
+			$response = $response->withStatus(401);
+			$errorData = ['error' => 'Informations invalides'];
+			$response->getBody()->write(json_encode($errorData));
+		}
+	
+		return addHeaders($response);
+	}
