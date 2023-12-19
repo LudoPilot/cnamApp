@@ -39,10 +39,13 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 	// API Nécessitant un Jwt valide
 	function getCatalogue (Request $request, Response $response, $args) {
 		$data = file_get_contents(__DIR__ . '/../assets/mock/product-list.json');
-
-	    $response->getBody()->write($data);
-	    
-	    return addHeaders ($response);
+    
+		// Ligne ajoutée pour prendre en compte le format JSON
+		$response = $response->withHeader('Content-Type', 'application/json');
+		
+		$response->getBody()->write($data);
+	
+		return addHeaders($response);
 	}
 
 	function optionsUtilisateur (Request $request, Response $response, $args) {
