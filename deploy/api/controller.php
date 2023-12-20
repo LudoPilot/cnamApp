@@ -17,8 +17,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 	    return $response;
 	}
 	
-	function  getSearchCalatogue (Request $request, Response $response, $args) {
-	    $filtre = $args['filtre'];
+	function  getSearchCatalogue (Request $request, Response $response, $args) {
 		$flux = '[
 			{
 			  "id": 1,
@@ -50,26 +49,15 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 			  "category": "Accessoire",
 			  "price": 199.99
 			}
-		]';
-			   
-	    if ($filtre) {
-	      $data = json_decode($flux, true); 
-	    	
-		$res = array_filter($data, function($obj) use ($filtre)
-		{ 
-		    return strpos($obj["titre"], $filtre) !== false;
-		});
-		$response->getBody()->write(json_encode(array_values($res)));
-	    } else {
-		 $response->getBody()->write($flux);
-	    }
-
+		]';		
+	   $response->getBody()->write($flux);
+	   
 	    return addHeaders ($response);
 	}
 
 	// API Nécessitant un Jwt valide
 	function getCatalogue (Request $request, Response $response, $args) {
-		$flux = file_get_contents(__DIR__ . '/../assets/mock/product-list.json');
+		$data = file_get_contents(__DIR__ . '/../assets/mock/product-list.json');
 
 	    $response->getBody()->write($flux);
 	    
