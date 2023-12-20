@@ -17,7 +17,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 	    return $response;
 	}
 	
-	function  getSearchCatalogue (Request $request, Response $response, $args) {
+	function  getSearchCalatogue (Request $request, Response $response, $args) {
+	    $filtre = $args['filtre'];
 		$flux = '[
 			{
 			  "id": 1,
@@ -49,9 +50,19 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 			  "category": "Accessoire",
 			  "price": 199.99
 			}
-		]';		
-	   $response->getBody()->write($flux);
-	   
+		]';	   
+	    if ($filtre) {
+	      $data = json_decode($flux, true); 
+	    	
+		$res = array_filter($data, function($obj) use ($filtre)
+		{ 
+		    return strpos($obj["titre"], $filtre) !== false;
+		});
+		$response->getBody()->write(json_encode(array_values($res)));
+	    } else {
+		 $response->getBody()->write($flux);
+	    }
+
 	    return addHeaders ($response);
 	}
 
