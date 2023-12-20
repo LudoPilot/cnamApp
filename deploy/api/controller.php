@@ -19,39 +19,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 	
 	function  getSearchCalatogue (Request $request, Response $response, $args) {
 	    $filtre = $args['filtre'];
-		$flux = '[
-			{
-			  "id": 1,
-			  "name": "Appareil photo reflex Canon EOS 5D Mark IV",
-			  "category": "Caméra",
-			  "price": 2999.99
-			},
-			{
-			  "id": 2,
-			  "name": "Objectif Sigma 35mm f/1.4 Art",
-			  "category": "Objectif",
-			  "price": 899.99
-			},
-			{
-			  "id": 3,
-			  "name": "Trépied Manfrotto 190XPROB",
-			  "category": "Accessoire",
-			  "price": 249.99
-			},
-			{
-			  "id": 4,
-			  "name": "Carte mémoire SanDisk Extreme Pro 128 Go",
-			  "category": "Accessoire",
-			  "price": 59.99
-			},
-			{
-			  "id": 5,
-			  "name": "Sac à dos pour appareil photo Lowepro ProTactic 450 AW II",
-			  "category": "Accessoire",
-			  "price": 199.99
-			}
-		]';
-			   
+	    $flux = '[{"titre":"linux","ref":"001","prix":"20"},{"titre":"java","ref":"002","prix":"21"},{"titre":"windows","ref":"003","prix":"22"},{"titre":"angular","ref":"004","prix":"23"},{"titre":"unix","ref":"005","prix":"25"},{"titre":"javascript","ref":"006","prix":"19"},{"titre":"html","ref":"007","prix":"15"},{"titre":"css","ref":"008","prix":"10"}]';
+	   
 	    if ($filtre) {
 	      $data = json_decode($flux, true); 
 	    	
@@ -69,9 +38,10 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 	// API Nécessitant un Jwt valide
 	function getCatalogue (Request $request, Response $response, $args) {
-		$flux = file_get_contents(__DIR__ . '/../assets/mock/product-list.json');
-
-	    $response->getBody()->write($flux);
+	    $flux = '[{"titre":"linux","ref":"001","prix":"20"},{"titre":"java","ref":"002","prix":"21"},{"titre":"windows","ref":"003","prix":"22"},{"titre":"angular","ref":"004","prix":"23"},{"titre":"unix","ref":"005","prix":"25"},{"titre":"javascript","ref":"006","prix":"19"},{"titre":"html","ref":"007","prix":"15"},{"titre":"css","ref":"008","prix":"10"}]';
+	    $data = json_decode($flux, true); 
+	    
+	    $response->getBody()->write(json_encode($data));
 	    
 	    return addHeaders ($response);
 	}
@@ -86,35 +56,54 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 	// API Nécessitant un Jwt valide
 	function getUtilisateur (Request $request, Response $response, $args) {
+	    global $entityManager;
 	    
 	    $payload = getJWTToken($request);
 	    $login  = $payload->userid;
 	    
-		$flux = '{"nom":"martin","prenom":"jean"}';
-	    
-	    $response->getBody()->write($flux);
-	    
+	    $utilisateurRepository = $entityManager->getRepository('Utilisateurs');
+	    $utilisateur = $utilisateurRepository->findOneBy(array('login' => $login));
+	    if ($utilisateur) {
+		$data = array('nom' => $utilisateur->getNom(), 'prenom' => $utilisateur->getPrenom());
+		$response = addHeaders ($response);
+		$response = createJwT ($response);
+		$response->getBody()->write(json_encode($data));
+	    } else {
+		$response = $response->withStatus(404);
+	    }
+
 	    return addHeaders ($response);
 	}
 
 	// APi d'authentification générant un JWT
 	function postLogin (Request $request, Response $response, $args) {   
-		// Récupération du contenu de la requête (login + password)
-		parse_str($request->getBody()->getContents(), $requestData);
+	    global $entityManager;
+	    $err=false;
+	    $body = $request->getParsedBody();
+	    $login = $body ['login'] ?? "";
+	    $pass = $body ['password'] ?? "";
 
-		$login = $requestData['login'];
-		$password = $requestData['password'];
-	
-		// Vérification des identifiants de connexion
-		if ($login === 'emma' && $password === 'toto') {
-			$flux = '{"nom":"martin","prenom":"emma"}';
-			$response = createJwT($response);
-			$response->getBody()->write($flux);
-		} else {
-			$response = $response->withStatus(401);
-			$errorData = ['error' => 'Informations invalides'];
-			$response->getBody()->write(json_encode($errorData));
+	    if (!preg_match("/[a-zA-Z0-9]{1,20}/",$login))   {
+		$err = true;
+	    }
+	    if (!preg_match("/[a-zA-Z0-9]{1,20}/",$pass))  {
+		$err=true;
+	    }
+	    if (!$err) {
+		$utilisateurRepository = $entityManager->getRepository('Utilisateurs');
+		$utilisateur = $utilisateurRepository->findOneBy(array('login' => $login, 'password' => $pass));
+		if ($utilisateur and $login == $utilisateur->getLogin() and $pass == $utilisateur->getPassword()) {
+		    $response = addHeaders ($response);
+		    $response = createJwT ($response);
+		    $data = array('nom' => $utilisateur->getNom(), 'prenom' => $utilisateur->getPrenom());
+		    $response->getBody()->write(json_encode($data));
+		} else {          
+		    $response = $response->withStatus(403);
 		}
-	
-		return addHeaders($response);
+	    } else {
+		$response = $response->withStatus(500);
+	    }
+
+	    return addHeaders ($response);
 	}
+
