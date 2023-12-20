@@ -29,21 +29,43 @@
 	}
 
 	// Middleware de validation du Jwt
+	// $options = [
+	//     "attribute" => "token",
+	//     "header" => "Authorization",
+	//     "regexp" => "/Bearer\s+(.*)$/i",
+	//     "secure" => false,
+	//     "algorithm" => ["HS256"],
+	//     "secret" => JWT_SECRET,
+	//     "path" => ["/api"],
+	//     "ignore" => ["/api/hello","/api/utilisateur/login"],
+	//     "error" => function ($response, $arguments) {
+	// 	$data = array('ERREUR' => 'Connexion', 'ERREUR' => 'JWT Non valide');
+	// 	$response = $response->withStatus(401);
+	// 	return $response->withHeader("Content-Type", "application/json")->getBody()->write(json_encode($data));
+	//     }
+	// ];
 	$options = [
-	    "attribute" => "token",
-	    "header" => "Authorization",
-	    "regexp" => "/Bearer\s+(.*)$/i",
-	    "secure" => false,
-	    "algorithm" => ["HS256"],
-	    "secret" => JWT_SECRET,
-	    "path" => ["/api"],
-	    "ignore" => ["/api/hello","/api/utilisateur/login"],
-	    "error" => function ($response, $arguments) {
-		$data = array('ERREUR' => 'Connexion', 'ERREUR' => 'JWT Non valide');
-		$response = $response->withStatus(401);
-		return $response->withHeader("Content-Type", "application/json")->getBody()->write(json_encode($data));
-	    }
+		"attribute" => "token",
+		"header" => "Authorization",
+		"regexp" => "/Bearer\s+(.*)$/i",
+		"secure" => false,
+		"algorithm" => ["HS256"],
+		"secret" => JWT_SECRET,
+		"path" => ["/api"],
+		"ignore" => ["/api/hello", "/api/utilisateur/login"],
+		"error" => function ($response, $arguments) {
+			$data = array('ERREUR' => 'Connexion', 'ERREUR' => 'JWT Non valide');
+			$response = $response->withStatus(401);
+			return $response->withHeader("Content-Type", "application/json")->getBody()->write(json_encode($data));
+		},
+		"before" => function ($request, $response, $arguments) {
+			if ($request->getMethod() === "OPTIONS") {
+				// Autoriser les requêtes OPTIONS sans validation JWT
+				return $response;
+			}
+		}
 	];
+	
 
 	function  addHeaders (Response $response) : Response {
 	    $response = $response
