@@ -17,7 +17,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 	    return $response;
 	}
 	
-	function  getSearchCalatogue (Request $request, Response $response, $args) {
+	function  getSearchCatalogue (Request $request, Response $response, $args) {
 	    $filtre = $args['filtre'];
 		$flux = '[
 			{
