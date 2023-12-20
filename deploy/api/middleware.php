@@ -48,25 +48,15 @@
 	function  addHeaders (Response $response) : Response {
 	    $response = $response
 	    ->withHeader("Content-Type", "application/json")
+	    ->withHeader('Access-Control-Expose-Headers', 'Authorization')
+
+	    ->withHeader('Access-Control-Allow-Origin', ('*'))
+	    ->withHeader('Access-Control-Allow-Headers', 'Content-Type,  Authorization')
+	    ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
 	    ->withHeader('Access-Control-Expose-Headers', 'Authorization');
-	    //->withHeader('Access-Control-Allow-Origin', ('https://tpbackend.herokuapp.com'))
-	    //->withHeader('Access-Control-Allow-Headers', 'Content-Type,  Authorization')
-	    //->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-	    //->withHeader('Access-Control-Expose-Headers', 'Authorization');
 
 	    return $response;
 	}
 
 	// Chargement du Middleware
 	$app->add(new Tuupola\Middleware\JwtAuthentication($options));
-
-	// Gestion des éventuelles erreurs CORS
-	$app->add(function ($request, $response, $next) {
-		$response = $next($request, $response);
-		return $response
-			->withHeader('Access-Control-Allow-Origin', '*')
-			->withHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization')
-			->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-	});
-	
-
