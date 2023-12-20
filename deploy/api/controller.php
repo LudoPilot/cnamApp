@@ -70,7 +70,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 	function getCatalogue (Request $request, Response $response, $args) {
 		$data = file_get_contents(__DIR__ . '/../assets/mock/product-list.json');
 
-	    $response->getBody()->write($flux);
+	    $response->getBody()->write($data);
 	    
 	    return addHeaders ($response);
 	}
