@@ -58,7 +58,7 @@
 			$response = $response->withStatus(401);
 			return $response->withHeader("Content-Type", "application/json")->getBody()->write(json_encode($data));
 		},
-		"before" => function ($request, $response, $arguments) {
+		"before" => function ($request, $response) {
 			if ($request->getMethod() === "OPTIONS") {
 				// Autoriser les requêtes OPTIONS sans validation JWT
 				return $response;
