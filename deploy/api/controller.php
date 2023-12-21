@@ -17,19 +17,30 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 	    return $response;
 	}
 	
-	function  getSearchCalatogue (Request $request, Response $response, $args) {
-	    $flux = '[{"titre":"linux","ref":"001","prix":"20"},{"titre":"java","ref":"002","prix":"21"},{"titre":"windows","ref":"003","prix":"22"},{"titre":"angular","ref":"004","prix":"23"},{"titre":"unix","ref":"005","prix":"25"},{"titre":"javascript","ref":"006","prix":"19"},{"titre":"html","ref":"007","prix":"15"},{"titre":"css","ref":"008","prix":"10"}]';
-		
-	   $response->getBody()->write($flux);
-	   
-	    return addHeaders ($response);
+	function getSearchCatalogue(Request $request, Response $response, $args) {
+		$filtre = $args['filtre'];
+		$data = file_get_contents(__DIR__ . '/../assets/mock/product-list.json');
+		$data = json_decode($data, true);
+	
+		if ($filtre) {
+			$res = array_filter($data, function($obj) use ($filtre) { 
+				$filtre = strtolower($filtre);
+				return strpos(strtolower($obj["name"]), $filtre) !== false || strpos(strtolower($obj["category"]), $filtre) !== false;
+			});
+			$response->getBody()->write(json_encode(array_values($res)));
+		} else {
+			$response->getBody()->write(json_encode($data));
+		}
+	
+		return addHeaders($response);
 	}
+	
 
 	// API Nécessitant un Jwt valide
 	function getCatalogue (Request $request, Response $response, $args) {
 		$data = file_get_contents(__DIR__ . '/../assets/mock/product-list.json');
 
-	    $response->getBody()->write($flux);
+	    $response->getBody()->write($data);
 	    
 	    return addHeaders ($response);
 	}
