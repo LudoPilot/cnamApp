@@ -17,54 +17,26 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 	    return $response;
 	}
 	
-	function  getSearchCatalogue (Request $request, Response $response, $args) {
-	    $filtre = $args['filtre'];
-		$flux = '[
-			{
-			  "id": 1,
-			  "name": "Appareil photo reflex Canon EOS 5D Mark IV",
-			  "category": "Caméra",
-			  "price": 2999.99
-			},
-			{
-			  "id": 2,
-			  "name": "Objectif Sigma 35mm f/1.4 Art",
-			  "category": "Objectif",
-			  "price": 899.99
-			},
-			{
-			  "id": 3,
-			  "name": "Trépied Manfrotto 190XPROB",
-			  "category": "Accessoire",
-			  "price": 249.99
-			},
-			{
-			  "id": 4,
-			  "name": "Carte mémoire SanDisk Extreme Pro 128 Go",
-			  "category": "Accessoire",
-			  "price": 59.99
-			},
-			{
-			  "id": 5,
-			  "name": "Sac à dos pour appareil photo Lowepro ProTactic 450 AW II",
-			  "category": "Accessoire",
-			  "price": 199.99
-			}
-		]';	   
-	    if ($filtre) {
-	      $data = json_decode($flux, true); 
-	    	
-		$res = array_filter($data, function($obj) use ($filtre)
-		{ 
-		    return strpos($obj["titre"], $filtre) !== false;
-		});
-		$response->getBody()->write(json_encode(array_values($res)));
-	    } else {
-		 $response->getBody()->write($flux);
-	    }
-
-	    return addHeaders ($response);
+	function getSearchCatalogue(Request $request, Response $response, $args) {
+		$filtre = $args['filtre'];
+		$data = file_get_contents(__DIR__ . '/../assets/mock/product-list.json');
+		$data = json_decode($data, true);
+	
+		if ($filtre) {
+			$res = array_filter($data, function($obj) use ($filtre) { 
+				// La recherche est insensible à la casse et vérifie à la fois le nom et la catégorie
+				$filtre = strtolower($filtre);
+				return strpos(strtolower($obj["name"]), $filtre) !== false || strpos(strtolower($obj["category"]), $filtre) !== false;
+			});
+			$response->getBody()->write(json_encode(array_values($res)));
+		} else {
+			$response->getBody()->write(json_encode($data));
+		}
+	
+		return addHeaders($response);
 	}
+	
+	
 
 	// API Nécessitant un Jwt valide
 	function getCatalogue (Request $request, Response $response, $args) {

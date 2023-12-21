@@ -59,3 +59,4 @@
 
 	// Chargement du Middleware
 	$app->add(new Tuupola\Middleware\JwtAuthentication($options));
+	
